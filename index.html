@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مُتحدّي الكسور</title>
+<style>
+:root{--bg:#f1f5f9;--shell:#fff;--card:#f8fafc;--line:#cbd5e1;--text:#0f172a;--muted:#475569;--btn:#fff;--gold:#b45309;--blue:#0369a1;--ok:#16a34a;--bad:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f172a;--shell:#111827;--card:#1f2937;--line:#334155;--text:#e5e7eb;--muted:#94a3b8;--btn:#0f172a;--gold:#facc15;--blue:#38bdf8}}
+:root[data-theme="dark"]{--bg:#0f172a;--shell:#111827;--card:#1f2937;--line:#334155;--text:#e5e7eb;--muted:#94a3b8;--btn:#0f172a;--gold:#facc15;--blue:#38bdf8}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;padding:16px;display:flex;justify-content:center}
+.shell{width:min(760px,100%);background:var(--shell);border:1px solid var(--line);border-radius:18px;padding:18px}
+.hud{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-bottom:14px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-weight:bold;font-size:.95rem}
+h1{margin:0 0 8px;color:var(--gold);font-size:1.5rem}
+.stage{display:flex;justify-content:space-between;color:var(--muted);font-size:.95rem;margin-bottom:6px}
+.stage b{color:var(--blue)}
+.bar{height:10px;background:var(--card);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#38bdf8,#facc15);transition:width .3s}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.qt{font-size:clamp(1.2rem,3.5vw,1.8rem);font-weight:bold;line-height:1.8;text-align:center;margin:6px 0 18px}
+bdi{unicode-bidi:isolate;direction:ltr;white-space:nowrap}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.a{background:var(--btn);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:16px 10px;font:bold 1.15rem Tahoma,Arial,sans-serif;cursor:pointer;min-height:64px}
+.a:hover:not(:disabled){border-color:var(--blue)}
+.a.good{background:var(--ok);color:#fff;border-color:var(--ok)}
+.a.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.t{flex:1 1 140px;border:0;border-radius:12px;padding:12px;color:#fff;font:bold .95rem Tahoma,Arial,sans-serif;cursor:pointer;background:#2563eb}
+.t:nth-child(2){background:#d97706}.t:nth-child(3){background:#059669}
+.t:disabled{opacity:.5;cursor:default}
+.pad{display:none;margin-top:12px}
+.pad textarea{width:100%;height:80px;border-radius:10px;border:1px solid var(--line);background:#f5e3b0;color:#3b2f1d;padding:10px;font:1rem Tahoma,Arial,sans-serif;resize:none}
+.fb{margin-top:14px;min-height:54px;border-radius:12px;padding:12px 14px;border:1px solid var(--line);font-weight:bold;line-height:1.7;display:flex;align-items:center}
+.fb.ok{border-color:var(--ok);color:var(--ok)}.fb.err{border-color:var(--bad);color:var(--bad)}
+.screen{text-align:center;padding:30px 10px}
+.screen p{color:var(--muted);line-height:1.9}
+.cta{background:linear-gradient(135deg,#22c55e,#06b6d4);color:#fff;border:0;border-radius:14px;padding:14px 32px;font:bold 1.1rem Tahoma,Arial,sans-serif;cursor:pointer;margin-top:10px}
+.hidden{display:none}
+@media(max-width:560px){.ans{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="start" class="screen">
+    <h1>🎯 مُتحدّي الكسور</h1>
+    <p>أنت «مهندس المهارات الحسابية». حل الكسور بسرعة ذهنية لعبور الجسور وإدارة المدينة. لديك ٣ قلوب في اللعبة كلها.</p>
+    <p>⏱️ ١٢٠ ثانية لكل سؤال · ⚡ نقاط سرعة في أول ٣٠ ثانية</p>
+    <button class="cta" id="startBtn">ابدأ المغامرة</button>
+  </div>
+
+  <div id="end" class="screen hidden">
+    <h1 id="endTitle"></h1>
+    <p id="endText"></p>
+    <button class="cta" id="againBtn">العب مرة أخرى</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="hud">
+      <div class="chip">النقاط: <span id="score">0</span></div>
+      <div class="chip">الزمن: <span id="timer">120</span> ث</div>
+      <div class="chip">المستوى: <span id="lvl">1</span>/3</div>
+      <div class="chip" id="hearts"></div>
+    </div>
+    <div class="stage"><b id="stageName"></b><span id="stageNo"></span></div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="q">
+      <div class="qt" id="qt"></div>
+      <div class="ans" id="ans"></div>
+      <div class="tools">
+        <button class="t" id="hintBtn">🧠 تلميح (−١٠)</button>
+        <button class="t" id="draftBtn">📝 مسودة</button>
+        <button class="t" id="freezeBtn">⏱️ +٣٠ ثانية</button>
+      </div>
+      <div class="pad" id="pad"><textarea placeholder="اكتب خطواتك هنا..."></textarea></div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const levels=[
+ [
+  {n:"مصنع التبسيط",q:"بسّط الكسر ٢٤/٣٢ إلى أبسط صورة",o:["٣/٤","٣/٥","٢/٣","٤/٥"],a:"٣/٤",h:"اقسم البسط والمقام على ٨."},
+  {n:"جسر الجمع السريع",q:"أوجد ناتج: ١/٤ + ١/٨",o:["٣/٨","١/٢","٢/٨","١/٤"],a:"٣/٨",h:"المقام المشترك هو ٨."},
+  {n:"مستودع الطرح",q:"أوجد ناتج: ٤/٥ − ١/١٠",o:["٧/١٠","٣/٥","١/٢","٤/١٠"],a:"٧/١٠",h:"حوّل ٤/٥ إلى ٨/١٠ ثم اطرح."}
+ ],
+ [
+  {n:"مطبخ تقطيع الفطائر",q:"أوجد ناتج: ٢/٣ × ٣/٧",o:["٢/٧","١/٣","٣/٧","٤/٩"],a:"٢/٧",h:"اختصر العامل ٣ قبل الضرب."},
+  {n:"متاهة اقلب واضرب",q:"أوجد ناتج: ٢/٥ ÷ ٢/٧",o:["٧/٥","١/٢","٥/٧","٤/١٥"],a:"٧/٥",h:"اقلب الكسر الثاني ثم اضرب."},
+  {n:"ورشة السباك جميل",q:"أنبوب طوله ٥ م، قُطع منه قطعتان طولهما ٢ ١/٤ م و ١ ٣/٥ م. ما طول القطعة المتبقية؟",o:["١ ١/١٠ م","١ ٣/٢٠ م","١ ١/٥ م","١ ٤/٥ م"],a:"١ ٣/٢٠ م",h:"اجمع الطولين أولاً ثم اطرح الناتج من ٥."}
+ ],
+ [
+  {n:"صالة السينما",q:"في دار سينما، ٣/٥ الحضور أطفال، و٢/٣ من هؤلاء الأطفال بنات. ما الكسر الذي يمثل البنات من إجمالي الحضور؟",o:["٢/٥","٣/٥","٣/٨","٤/١٥"],a:"٢/٥",h:"اضرب ٣/٥ × ٢/٣."},
+  {n:"استاد المباراة",q:"٣/٤ المشجعين للفريق المضيف والباقي للفريق الضيف، و١/٣ من مشجعي الفريق الضيف من الشباب. ما الكسر الذي يمثل شباب الفريق الضيف من الإجمالي؟",o:["١/٤","١/٣","١/١٢","١/٦"],a:"١/١٢",h:"الفريق الضيف = ١/٤ من الإجمالي، ثم احسب ١/٣ من ١/٤."},
+  {n:"مختبر الفيلسوف الرياضي",q:"أي مثال يناقض العبارة: «إذا قسمت كسرًا غير اعتيادي على كسر غير اعتيادي فالناتج دائمًا كسر غير اعتيادي»؟",o:["٣/٢ ÷ ٩/٢ = ١/٣","٥/٤ ÷ ٢/٣ = ١٥/٨","٧/٣ ÷ ١/٢ = ١٤/٣","٣/٢ ÷ ١/٢ = ٣"],a:"٣/٢ ÷ ٩/٢ = ١/٣",h:"ابحث عن ناتج يكون كسرًا اعتياديًا (بسطه أصغر من مقامه)."}
+ ]
+];
+const $=id=>document.getElementById(id);
+const S={score:0,hearts:3,l:0,s:0,t:120,iv:null,lock:false,hint:false,frozen:false};
+const ltr=s=>s.replace(/[٠-٩][٠-٩\s\/+\-−×÷=]*[٠-٩]/g,m=>"<bdi>"+m+"</bdi>");
+const say=(m,c)=>{$("fb").className="fb "+(c||"");$("fb").innerHTML=ltr(m)};
+function hud(){
+  $("score").textContent=S.score;$("timer").textContent=S.t;$("lvl").textContent=S.l+1;
+  $("hearts").textContent="💖".repeat(S.hearts)+"🩶".repeat(3-S.hearts);
+  $("fill").style.width=((S.l*3+S.s)/9*100)+"%";
+}
+function tick(){
+  clearInterval(S.iv);
+  S.iv=setInterval(()=>{S.t--;$("timer").textContent=S.t;if(S.t<=0){clearInterval(S.iv);wrong("⏰ انتهى الوقت!",null)}},1000);
+}
+function load(){
+  const st=levels[S.l][S.s];
+  S.lock=false;S.hint=false;S.frozen=false;S.t=120;
+  $("stageName").textContent=st.n;$("stageNo").textContent="السؤال "+(S.l*3+S.s+1)+" من ٩".replace(/\d+/,x=>x);
+  $("qt").innerHTML=ltr(st.q);
+  $("ans").innerHTML="";
+  [...st.o].sort(()=>Math.random()-.5).forEach(o=>{
+    const b=document.createElement("button");b.className="a";b.innerHTML=ltr(o);b.dataset.v=o;
+    b.onclick=()=>pick(o,b);$("ans").appendChild(b);
+  });
+  $("pad").style.display="none";$("freezeBtn").disabled=false;$("hintBtn").disabled=false;
+  say("اختر الإجابة الصحيحة قبل انتهاء الوقت.");
+  hud();tick();
+}
+function pick(v,btn){
+  if(S.lock)return;S.lock=true;clearInterval(S.iv);
+  const st=levels[S.l][S.s];
+  if(v===st.a){
+    btn.classList.add("good");
+    const bonus=S.t>=90?50:0;S.score+=100+bonus;hud();
+    say("✅ ممتاز! +"+(100+bonus)+" نقطة"+(bonus?" (مع نقاط السرعة ⚡)":""),"ok");
+    setTimeout(next,1300);
+  }else{
+    btn.classList.add("bad");wrong("❌ إجابة خاطئة. تذكّر: "+st.h,btn);
+  }
+}
+function wrong(msg){
+  S.lock=true;S.hearts--;hud();say(msg,"err");
+  if(S.hearts<=0){setTimeout(()=>finish(false),1800);return}
+  setTimeout(load,2000);
+}
+function next(){
+  if(S.s<2){S.s++;load()}
+  else if(S.l<2){S.l++;S.s=0;load()}
+  else finish(true);
+}
+function finish(win){
+  clearInterval(S.iv);
+  $("game").classList.add("hidden");$("end").classList.remove("hidden");
+  $("endTitle").textContent=win?"🏆 أحسنت! أنهيت جميع المستويات":"💔 انتهت محاولاتك";
+  $("endText").textContent="نتيجتك النهائية: "+S.score+" نقطة";
+}
+function begin(){
+  Object.assign(S,{score:0,hearts:3,l:0,s:0});
+  $("start").classList.add("hidden");$("end").classList.add("hidden");$("game").classList.remove("hidden");
+  load();
+}
+$("startBtn").onclick=begin;$("againBtn").onclick=begin;
+$("hintBtn").onclick=()=>{
+  if(S.lock)return;
+  if(!S.hint){S.hint=true;S.score=Math.max(0,S.score-10);hud()}
+  say("💡 تلميح: "+levels[S.l][S.s].h,"");
+};
+$("draftBtn").onclick=()=>{const p=$("pad");p.style.display=p.style.display==="block"?"none":"block"};
+$("freezeBtn").onclick=()=>{
+  if(S.lock||S.frozen)return;
+  S.frozen=true;S.t+=30;$("freezeBtn").disabled=true;hud();say("✅ أُضيفت ٣٠ ثانية إضافية.","ok");
+};
+</script>
+</body>
+</html>
