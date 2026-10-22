@@ -22,6 +22,11 @@ h1{margin:0 0 8px;color:var(--gold);font-size:1.5rem}
 .q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
 .qt{font-size:clamp(1.2rem,3.5vw,1.8rem);font-weight:bold;line-height:1.8;text-align:center;margin:6px 0 18px}
 bdi{unicode-bidi:isolate;direction:ltr;white-space:nowrap}
+.fr{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .15em}
+.w{margin-inline-end:.2em}
+.f{display:inline-flex;flex-direction:column;align-items:center;line-height:1.25;text-align:center}
+.f span:first-child{border-bottom:.09em solid currentColor;padding:0 .25em .05em}
+.f span:last-child{padding:.05em .25em 0}
 .ans{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .a{background:var(--btn);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:16px 10px;font:bold 1.15rem Tahoma,Arial,sans-serif;cursor:pointer;min-height:64px}
 .a:hover:not(:disabled){border-color:var(--blue)}
@@ -100,7 +105,8 @@ const levels=[
 ];
 const $=id=>document.getElementById(id);
 const S={score:0,hearts:3,l:0,s:0,t:120,iv:null,lock:false,hint:false,frozen:false};
-const ltr=s=>s.replace(/[٠-٩][٠-٩\s\/+\-−×÷=]*[٠-٩]/g,m=>"<bdi>"+m+"</bdi>");
+const fr=m=>m.replace(/(?:([٠-٩]+)\s+)?([٠-٩]+)\/([٠-٩]+)/g,(_,w,n,d)=>'<span class="fr">'+(w?'<span class="w">'+w+'</span>':'')+'<span class="f"><span>'+n+'</span><span>'+d+'</span></span></span>');
+const ltr=s=>s.replace(/[٠-٩][٠-٩\s\/+\-−×÷=]*[٠-٩]/g,m=>"<bdi>"+fr(m)+"</bdi>");
 const say=(m,c)=>{$("fb").className="fb "+(c||"");$("fb").innerHTML=ltr(m)};
 function hud(){
   $("score").textContent=S.score;$("timer").textContent=S.t;$("lvl").textContent=S.l+1;
